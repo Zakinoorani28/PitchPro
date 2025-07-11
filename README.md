@@ -3,7 +3,7 @@
 A production-ready B2B SaaS platform that generates professional pitch decks using AI technology, specifically optimized for African entrepreneurs and global startups.
 
 ## 🌍 Repository
-**[GitHub Repository →](https://github.com/mdundebs/protolab-ai-pitch-generator)**
+**[GitHub Repository →](https://github.com/Zakinoorani28/PitchPro)**
 
 ## 🚀 Features
 
@@ -71,7 +71,7 @@ shared/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/mdundebe/protomdu.git
+   git clone https://github.com/Zakinoorani28/PitchPro.git
    cd protomdu
    ```
 
