@@ -1,4 +1,12 @@
-import { pgTable, text, serial, integer, boolean, timestamp, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  integer,
+  boolean,
+  timestamp,
+  jsonb,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -199,7 +207,9 @@ export const corporateAccounts = pgTable("corporate_accounts", {
 
 export const teamMembers = pgTable("team_members", {
   id: serial("id").primaryKey(),
-  corporateAccountId: integer("corporate_account_id").references(() => corporateAccounts.id),
+  corporateAccountId: integer("corporate_account_id").references(
+    () => corporateAccounts.id
+  ),
   userId: integer("user_id").references(() => users.id),
   role: text("role").default("member"), // admin, member, viewer
   permissions: jsonb("permissions").default([]),
@@ -232,26 +242,30 @@ export const systemSettings = pgTable("system_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  email: true,
-  username: true,
-  password: true,
-  phone: true,
-  country: true,
-  carrier: true,
-  plan: true,
-  subscriptionTier: true,
-  role: true,
-  companyName: true,
-  companySize: true,
-  industry: true,
-  jobTitle: true,
-  department: true,
-}).extend({
-  name: z.string().optional()
-});
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    email: true,
+    username: true,
+    password: true,
+    phone: true,
+    country: true,
+    carrier: true,
+    plan: true,
+    subscriptionTier: true,
+    role: true,
+    companyName: true,
+    companySize: true,
+    industry: true,
+    jobTitle: true,
+    department: true,
+  })
+  .extend({
+    name: z.string().optional(),
+  });
 
-export const insertCorporateAccountSchema = createInsertSchema(corporateAccounts).pick({
+export const insertCorporateAccountSchema = createInsertSchema(
+  corporateAccounts
+).pick({
   companyName: true,
   domain: true,
   industry: true,
@@ -283,7 +297,9 @@ export const insertAdminLogSchema = createInsertSchema(adminLogs).pick({
   userAgent: true,
 });
 
-export const insertSystemSettingSchema = createInsertSchema(systemSettings).pick({
+export const insertSystemSettingSchema = createInsertSchema(
+  systemSettings
+).pick({
   key: true,
   value: true,
   description: true,
@@ -355,7 +371,9 @@ export const insertUploadedFileSchema = createInsertSchema(uploadedFiles).pick({
   insights: true,
 });
 
-export const insertDocumentContextSchema = createInsertSchema(documentContexts).pick({
+export const insertDocumentContextSchema = createInsertSchema(
+  documentContexts
+).pick({
   userId: true,
   documentType: true,
   websiteUrl: true,
@@ -388,7 +406,9 @@ export type InsertUploadedFile = z.infer<typeof insertUploadedFileSchema>;
 export type UploadedFile = typeof uploadedFiles.$inferSelect;
 export type InsertDocumentContext = z.infer<typeof insertDocumentContextSchema>;
 export type DocumentContext = typeof documentContexts.$inferSelect;
-export type InsertCorporateAccount = z.infer<typeof insertCorporateAccountSchema>;
+export type InsertCorporateAccount = z.infer<
+  typeof insertCorporateAccountSchema
+>;
 export type CorporateAccount = typeof corporateAccounts.$inferSelect;
 export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
 export type TeamMember = typeof teamMembers.$inferSelect;

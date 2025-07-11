@@ -12,37 +12,37 @@ interface AIConfig {
 
 export function getAIConfig(): AIConfig {
   const provider = (process.env.AI_PROVIDER || "openai") as AIProvider;
-  
+
   switch (provider) {
     case "deepseek":
       return {
         provider: "deepseek",
         apiKey: process.env.DEEPSEEK_API_KEY || "",
         baseURL: "https://api.deepseek.com/v1",
-        model: "deepseek-chat"
+        model: "deepseek-chat",
       };
     case "openai":
     default:
       return {
         provider: "openai",
         apiKey: process.env.OPENAI_API_KEY || "",
-        model: "gpt-4o"
+        model: "gpt-4o",
       };
   }
 }
 
 export function createAIClient(): OpenAI {
   const config = getAIConfig();
-  
+
   if (config.provider === "deepseek") {
     return new OpenAI({
       apiKey: config.apiKey,
-      baseURL: config.baseURL
+      baseURL: config.baseURL,
     });
   }
-  
+
   return new OpenAI({
-    apiKey: config.apiKey
+    apiKey: config.apiKey,
   });
 }
 
