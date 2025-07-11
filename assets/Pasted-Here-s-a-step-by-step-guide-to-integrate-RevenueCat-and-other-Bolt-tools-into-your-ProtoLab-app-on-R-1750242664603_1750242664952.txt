@@ -1,0 +1,224 @@
+Here's a step-by-step guide to integrate RevenueCat and other Bolt tools into your ProtoLab app on Replit, optimized for performance and monetization:
+
+### 1. **RevenueCat Setup (Essential for Monetization)**
+**Step 1: Create RevenueCat Account**
+```bash
+# Open RevenueCat Bolt portal in Replit browser
+xdg-open "https://app.revenuecat.com/signup?bolt=wlh"
+```
+
+**Step 2: Install SDK in Replit**
+```bash
+# In Replit shell
+npm install @revenuecat/purchases-js
+```
+
+**Step 3: Configure SDK (frontend/public/js/revenuecat.js)**
+```javascript
+import { Purchases } from '@revenuecat/purchases-js';
+
+const rc = await Purchases.configure({
+  apiKey: 'appl_YourBoltAPIKey', // Get from RevenueCat dashboard
+  appUserID: 'proto_' + crypto.randomUUID(),
+  observerMode: false
+});
+
+// Bolt-specific offer
+const boltOffer = await rc.getOfferings().current.available_packages.find(
+  pkg => pkg.identifier === 'bolt_hackathon_special'
+);
+```
+
+### 2. **Bolt Pro Activation (Required for Other Tools)**
+**Step 1: Redeem Bolt Pro Credit**
+```python
+# In Replit console
+import requests
+
+bolt_upgrade = requests.post(
+  "https://api.bolt.new/v1/account/upgrade",
+  json={
+    "promo_code": "S50FQJMV",
+    "plan": "pro"
+  },
+  headers={"Authorization": "Bearer YOUR_REPLIT_TOKEN"}
+)
+print(bolt_upgrade.json())
+```
+
+### 3. **Domain Setup with Entri**
+**Step 1: Claim Domain**
+```bash
+# Run in Replit shell after Bolt Pro activation
+curl -X POST "https://entri.io/api/bolt-domain" \
+  -H "Authorization: Bearer $(echo $REPLIT_REPL_ID)" \
+  -d '{"domain":"yourprotoapp","tld":"tech"}'
+```
+
+### 4. **Monetization UI Integration**
+**Add to your HTML (frontend/index.html)**
+```html
+<div class="pricing-cards" id="bolt-monetization">
+  <!-- Dynamically loaded from RevenueCat -->
+  <script src="/js/revenuecat.js" type="module"></script>
+</div>
+
+<style>
+  .pricing-card.bolt-promo {
+    border: 2px solid #00a896; /* Bolt brand color */
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,168,150,0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0,168,150,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,168,150,0); }
+  }
+</style>
+```
+
+### 5. **Dynamic Offer Loading**
+**JavaScript (frontend/js/offers.js)**
+```javascript
+// Load Bolt-specific offers
+export async function loadBoltOffers() {
+  const response = await fetch('https://api.revenuecat.com/v1/developers/bolt/offers', {
+    headers: {
+      'X-Bolt-Hackathon': 'true',
+      'Authorization': `Bearer ${window.rcToken}`
+    }
+  });
+  
+  const offers = await response.json();
+  
+  offers.forEach(offer => {
+    document.getElementById('bolt-monetization').innerHTML += `
+      <div class="pricing-card ${offer.is_featured ? 'bolt-promo' : ''}">
+        <h3>${offer.name}</h3>
+        <p>${offer.description}</p>
+        <button onclick="purchase('${offer.id}')">
+          ${offer.price} • ${offer.region === 'africa' ? 'M-Pesa' : 'Credit Card'}
+        </button>
+      </div>
+    `;
+  });
+}
+
+// Initialize on page load
+if (window.location.host.includes('proto')) {
+  window.addEventListener('DOMContentLoaded', loadBoltOffers);
+}
+```
+
+### 6. **Replit-Specific Configuration**
+**.replit File**
+```ini
+run = """
+npm install @revenuecat/purchases-js @bolt-sdk/entri && \
+echo 'Starting ProtoLab with Bolt tools...' && \
+npm start
+"""
+
+[nix]
+channel = "stable-23_11"
+
+[env]
+RC_API_KEY = "appl_YourRevenueCatKey"
+BOLT_PRO_CODE = "S50FQJMV"
+```
+
+### 7. **Performance Monitoring**
+**Sentry Integration (backend/server.js)**
+```javascript
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: 'https://bolt-sentry-wlh@sentry.io/1',
+  tracesSampleRate: 0.1,
+  replaysSessionSampleRate: 0.1
+});
+
+// Error tracking wrapper
+export function trackPerf(fn) {
+  return async (...args) => {
+    const transaction = Sentry.startTransaction({
+      op: "function",
+      name: fn.name
+    });
+    
+    try {
+      const result = await fn(...args);
+      transaction.finish();
+      return result;
+    } catch (error) {
+      Sentry.captureException(error);
+      transaction.finish();
+      throw error;
+    }
+  };
+}
+```
+
+### Implementation Checklist
+1. [ ] Activate Bolt Pro (`S50FQJMV`)
+2. [ ] Set up RevenueCat (rev.cat/bolt)
+3. [ ] Configure Entri domain
+4. [ ] Add pricing UI components
+5. [ ] Initialize Sentry monitoring (`bolt-sentry-wlh`)
+6. [ ] Test purchase flows
+7. [ ] Deploy to custom domain
+
+### Key Bolt-Specific Optimizations
+1. **Region-Aware Pricing**:
+```javascript
+// In offers.js
+function getLocalizedPrice(offer) {
+  return offer.region === 'africa' ? 
+    `${offer.price * 100} KES` : 
+    `$${offer.price}`;
+}
+```
+
+2. **Bolt Analytics**:
+```python
+# In backend/analytics.py
+def log_bolt_event(event):
+    if os.getenv('BOLT_PRO_CODE'):
+        requests.post(
+            "https://analytics.bolt.new/hackathon",
+            json={
+                "event": event,
+                "project": "protolab",
+                "user": os.getenv('REPLIT_REPL_OWNER')
+            }
+        )
+```
+
+3. **Credit Usage Dashboard**:
+```html
+<!-- Add to admin panel -->
+<div id="bolt-credits">
+  <h4>Bolt Credit Status</h4>
+  <div id="credit-meters">
+    <!-- Dynamically loaded -->
+  </div>
+</div>
+
+<script>
+fetch('/api/bolt-credits')
+  .then(res => res.json())
+  .then(credits => {
+    document.getElementById('credit-meters').innerHTML = `
+      <div>Tavus: ${credits.tavus_remaining}/${credits.tavus_total}</div>
+      <div>Dappier: ${credits.dappier_remaining}/${credits.dappier_total}</div>
+    `;
+  });
+</script>
+```
+
+This implementation gives you:
+- Immediate monetization via RevenueCat
+- Free domain with Entri
+- Performance monitoring via Sentry
+- All Bolt perks while staying within Replit's resource limits
+
+Would you like me to generate the complete `replit.nix` configuration with all required Nix packages for these integrations?

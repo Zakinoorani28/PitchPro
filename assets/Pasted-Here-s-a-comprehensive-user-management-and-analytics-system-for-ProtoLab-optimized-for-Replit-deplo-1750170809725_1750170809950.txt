@@ -1,0 +1,215 @@
+Here’s a comprehensive user management and analytics system for ProtoLab, optimized for Replit deployment with African market considerations:
+
+1. User Control Center Architecture
+Diagram
+Code
+graph TB
+    A[User Types] --> B((Free))
+    A --> C((Hustler+))
+    A --> D((Founder))
+    A --> E((Corporate))
+    
+    F[Control Modules] --> G[Auth]
+    F --> H[Usage Limits]
+    F --> I[Payment]
+    F --> J[Analytics]
+2. Replit Backend Implementation
+A. User Authentication (auth.py)
+python
+from flask_jwt_extended import JWTManager, create_access_token
+from werkzeug.security import generate_password_hash, check_password_hash
+import re
+
+# Africa-optimized phone validation
+def validate_african_phone(phone):
+    patterns = {
+        'nigeria': r'^\+234\d{10}$',
+        'kenya': r'^\+254\d{9}$',
+        'south_africa': r'^\+27\d{9}$'
+    }
+    return any(re.match(p, phone) for p in patterns.values())
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    if not validate_african_phone(data['phone']):
+        return jsonify({"error": "Invalid African phone format"}), 400
+    
+    hashed_pw = generate_password_hash(data['password'])
+    user = {
+        "phone": data['phone'],
+        "password": hashed_pw,
+        "plan": "free",
+        "created_at": datetime.now()
+    }
+    firestore.collection('users').add(user)
+    
+    return jsonify({"token": create_access_token(user)})
+
+@app.route('/mpesa-webhook', methods=['POST'])
+def mpesa_payment():
+    data = request.json
+    # Verify M-Pesa transaction via Africa's Talking API
+    if data['status'] == 'success':
+        firestore.collection('users').document(data['phone']).update({
+            'plan': 'hustler_plus',
+            'expiry': datetime.now() + timedelta(days=30)
+        })
+    return "OK"
+B. Usage Tracking (limits.py)
+python
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    storage_uri="redis://localhost:6379"
+)
+
+# Africa-tiered limits
+TIER_LIMITS = {
+    'free': "5/day",
+    'hustler_plus': "50/day",
+    'founder': "500/day"
+}
+
+@app.route('/generate')
+@limiter.limit(lambda: TIER_LIMITS[get_user_tier()])
+def generate_doc():
+    user = get_jwt_identity()
+    if check_usage_exceeded(user):
+        return jsonify({"error": "Upgrade to create more"}), 402
+    # ... doc generation logic
+3. Analytics Dashboard (analytics.py)
+python
+@app.route('/analytics', methods=['GET'])
+@admin_required
+def get_analytics():
+    # Africa-focused metrics
+    return jsonify({
+        "signups": {
+            "total": firestore.collection('users').count().get().count,
+            "by_country": group_by_country(),
+            "by_plan": group_by_plan()
+        },
+        "conversions": {
+            "free_to_paid": calculate_conversion_rate(),
+            "popular_templates": get_top_templates()
+        },
+        "engagement": {
+            "avg_session": get_avg_session_duration(),
+            "retention": get_30day_retention()
+        }
+    })
+
+def group_by_country():
+    # Map phone prefixes to countries
+    return {
+        "+234": "Nigeria",
+        "+254": "Kenya",
+        "+27": "South Africa"
+    }
+4. Admin Control Panel (admin.html)
+html
+<div class="africa-dashboard">
+    <div class="map-overlay">
+        <img src="africa-map.svg" alt="Africa Map">
+        <div class="country" v-for="c in countries" 
+             :style="{left: c.x, top: c.y, opacity: c.users/100}">
+            {{ c.code }}: {{ c.users }}
+        </div>
+    </div>
+    
+    <div class="metrics">
+        <metric-card title="M-Pesa Revenue" 
+                     :value="mpesaRevenue" 
+                     trend="+12%"></metric-card>
+        <metric-card title="Grant Success Rate" 
+                     :value="grantSuccessRate" 
+                     trend="+7%"></metric-card>
+    </div>
+</div>
+5. Key African Optimizations
+A. Payment Tracking
+python
+# mpesa_utils.py
+def verify_mpesa_transaction(phone):
+    # Use Africa's Talking API
+    response = requests.get(
+        f"https://api.africastalking.com/mpesa/verify?phone={phone}",
+        headers={'apiKey': AT_KEY}
+    )
+    return response.json()['status'] == 'verified'
+**B. Localized Analytics
+javascript
+// Track user's mobile carrier
+function detectCarrier(phone) {
+    const carriers = {
+        '23480': 'MTN Nigeria',
+        '25470': 'Safaricom',
+        '2771': 'Vodacom SA'
+    };
+    return carriers[phone.substring(0,5)] || 'Unknown';
+}
+6. Security & Compliance
+A. POPIA/GDPR Compliance
+python
+@app.route('/delete-account', methods=['DELETE'])
+def delete_account():
+    user = get_jwt_identity()
+    # Anonymize data instead of full deletion
+    firestore.collection('users').document(user).update({
+        'phone': 'DELETED',
+        'email': None,
+        'activity_logs': firestore.DELETE_FIELD
+    })
+    return jsonify({"status": "deleted"})
+**B. Rate Limiting by IP
+python
+limiter.limit(
+    "100/hour", 
+    key_func=lambda: f"{get_remote_address()}-{g.get('user_id', 'anon')}",
+    exempt_when=lambda: request.path == '/healthcheck'
+)
+7. Deployment Checklist
+Replit Secrets:
+
+bash
+echo "MPESA_KEY=your_mpesa_key" >> .env
+echo "JWT_SECRET=your_strong_secret" >> .env
+Required Packages:
+
+python
+# requirements.txt
+flask-jwt-extended==4.5.3
+flask-limiter==3.3.0
+africastalking==5.3.0
+google-cloud-firestore==2.11.1
+Cron Jobs:
+
+python
+# analytics_cron.py
+def daily_report():
+    stats = calculate_daily_metrics()
+    send_whatsapp_message(
+        to="+254712345678", 
+        body=f"📊 ProtoLab Stats:\nNew Users: {stats['signups']}"
+    )
+8. Expected Analytics Output
+json
+{
+  "active_users": {
+    "nigeria": 1250,
+    "kenya": 892,
+    "south_africa": 674
+  },
+  "revenue_streams": {
+    "mpesa": 2543.21,
+    "card": 842.50,
+    "telco_billing": 1890.75
+  },
+  "top_features": [
+    {"name": "Grant Finder", "usage": 2891},
+    {"name": "CV Builder", "usage": 2456}
+  ]
+}

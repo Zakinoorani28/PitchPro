@@ -1,0 +1,163 @@
+Document Intelligence Integration (Non-Destructive Approach)
+1. First, add this to your existing HTML (after the main form):
+
+html
+<!-- Document Upload Section -->
+<div class="upload-section">
+  <h3>Enhance Your Results</h3>
+  <div class="upload-options">
+    <div class="upload-card" id="pdf-upload">
+      <input type="file" id="document-upload" accept=".pdf,.docx,.txt" hidden>
+      <label for="document-upload">
+        <svg><!-- PDF icon SVG --></svg>
+        <span>Upload Documents</span>
+      </label>
+      <div class="upload-preview" id="upload-preview"></div>
+    </div>
+    
+    <div class="upload-card" id="link-input">
+      <input type="url" id="reference-link" placeholder="Paste reference URL">
+      <button onclick="analyzeLink()">Analyze</button>
+    </div>
+  </div>
+</div>
+2. Add this CSS (append to existing styles):
+
+css
+.upload-section {
+  margin-top: 2rem;
+  border-top: 1px solid #eaeaea;
+  padding-top: 1.5rem;
+}
+
+.upload-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.upload-card {
+  border: 2px dashed #00a896;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.upload-card:hover {
+  background: rgba(0, 168, 150, 0.05);
+}
+
+#reference-link {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.upload-preview {
+  margin-top: 1rem;
+  max-height: 150px;
+  overflow-y: auto;
+}
+3. JavaScript Processing (add new file document-intel.js):
+
+javascript
+// Document processing with fallbacks
+class DocumentIntel {
+  constructor() {
+    this.apiEndpoint = 'https://your-ai-service.com/analyze';
+    this.fallbackParser = new Worker('js/pdf-fallback.worker.js');
+  }
+
+  async processFile(file) {
+    try {
+      // Try primary AI service first
+      const result = await this._sendToAI(file);
+      return this._formatResult(result);
+    } catch (error) {
+      console.warn("AI service failed, using fallback");
+      return this._fallbackProcessing(file);
+    }
+  }
+
+  async _sendToAI(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('token', 'BOLT_HACKATHON_KEY');
+
+    const response = await fetch(this.apiEndpoint, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) throw new Error('AI service failed');
+    return response.json();
+  }
+
+  _fallbackProcessing(file) {
+    return new Promise((resolve) => {
+      this.fallbackParser.postMessage(file);
+      this.fallbackParser.onmessage = (e) => {
+        resolve({
+          content: e.data.text,
+          metadata: { source: 'fallback' }
+        });
+      };
+    });
+  }
+}
+
+// UI Integration
+const docIntel = new DocumentIntel();
+const uploadInput = document.getElementById('document-upload');
+
+uploadInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('upload-preview');
+  preview.innerHTML = `<div class="spinner"></div> Processing ${file.name}...`;
+  
+  const result = await docIntel.processFile(file);
+  
+  preview.innerHTML = `
+    <h4>${file.name}</h4>
+    <p>${result.content.substring(0, 150)}...</p>
+    <button onclick="useDocumentContent()">Apply to Project</button>
+  `;
+});
+
+window.useDocumentContent = () => {
+  // Integrate with existing generators
+  const content = document.querySelector('#upload-preview p').innerText;
+  document.getElementById('project-brief').value += `\n\nReference Content:\n${content}`;
+};
+4. Fallback Worker (public/js/pdf-fallback.worker.js):
+
+javascript
+// Web worker for client-side parsing
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js');
+
+self.onmessage = async (e) => {
+  const file = e.data;
+  let text = '';
+  
+  if (file.type === 'application/pdf') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    
+    const doc = await pdfjsLib.getDocument(URL.createObjectURL(file)).promise;
+    for (let i = 1; i <= doc.numPages; i++) {
+      const page = await doc.getPage(i);
+      const content = await page.getTextContent();
+      text += content.items.map(item => item.str).join(' ');
+    }
+  } else if (file.type === 'text/plain') {
+    text = await file.text();
+  }
+  
+  self.postMessage({ text });
+};

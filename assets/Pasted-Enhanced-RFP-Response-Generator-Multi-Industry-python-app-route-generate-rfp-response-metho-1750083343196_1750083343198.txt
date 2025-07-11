@@ -1,0 +1,78 @@
+Enhanced RFP Response Generator (Multi-Industry)
+python
+@app.route('/generate_rfp_response', methods=['POST'])
+def rfp_response():
+    data = request.json
+    industry = data['industry'].lower()
+    
+    # Dynamic template loading
+    template_path = f"rfp_templates/{industry}.md"
+    if not os.path.exists(template_path):
+        return jsonify({"error": "Unsupported industry. Try: construction, healthcare, fintech, energy"}), 400
+    
+    # Contextual generation
+    response = gpt4.generate(
+        template=template_path,
+        variables={
+            'requirements': data['requirements'],
+            'company_profile': data.get('company_profile', ''),
+            'past_projects': data.get('past_projects', [])
+        }
+    )
+    
+    return jsonify({
+        'response': response,
+        'compliance_score': calculate_compliance(response, data['requirements']),
+        'similarity_index': check_originality(response)
+    })
+Supported Industries:
+
+python
+INDUSTRIES = [
+    'engineering', 'construction', 'healthcare', 
+    'fintech', 'education', 'energy', 'agriculture',
+    'logistics', 'mining', 'telecom', 'government'
+]
+Smart Pitch Deck Generator with Learning
+python
+@app.route('/generate_pitch_deck', methods=['POST'])
+def pitch_deck():
+    inputs = request.json
+    user_id = inputs['user_id']
+    
+    # Analyze uploaded materials
+    context = ""
+    if inputs.get('website_url'):
+        context += scrape_website(inputs['website_url'])
+    if inputs.get('uploaded_docs'):
+        context += analyze_documents(inputs['uploaded_docs'])
+    
+    # Apply learned preferences
+    user_patterns = db.get_user_patterns(user_id)  # Stored patterns
+    
+    deck = gpt4.generate(
+        f"Create pitch deck using: {context}. Apply these patterns: {user_patterns}. "
+        "Include: Problem, Solution, Market Size, Business Model, Financial Projections"
+    )
+    
+    # Update user patterns
+    update_learning_model(user_id, deck)
+    
+    return jsonify({
+        'slides': deck,
+        'design_recommendation': select_design_theme(user_patterns)
+    })
+
+def update_learning_model(user_id, new_content):
+    """Track user preferences over time"""
+    patterns = db.get(f"user_patterns/{user_id}") or {}
+    new_analysis = analyze_writing_patterns(new_content)
+    
+    # Merge patterns (70% new influence)
+    updated = {
+        'language_style': merge_patterns(patterns.get('language_style'), new_analysis['style']),
+        'slide_structure': new_analysis['structure'] or patterns.get('slide_structure'),
+        'design_preferences': detect_design_choices(new_content)
+    }
+    
+    db.update(f"user_patterns/{user_id}", updated)

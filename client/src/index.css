@@ -1,0 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&family=Lora:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global-ready UI performance optimizations */
+.feature-grid {
+  contain: layout style;
+  /* Improves rendering performance */
+}
+
+.region-card {
+  will-change: transform;
+  transition: transform 0.2s ease-in-out;
+}
+
+.region-card:hover {
+  transform: translateY(-2px);
+}
+
+.global-pill {
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Gradient utilities for region cards */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+:root {
+  --background: hsl(39, 100%, 98%);
+  --foreground: hsl(25, 20%, 15%);
+  --muted: hsl(39, 30%, 95%);
+  --muted-foreground: hsl(25, 12%, 55%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(25, 20%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(25, 20%, 15%);
+  --border: hsl(39, 25%, 88%);
+  --input: hsl(39, 25%, 88%);
+  --primary: hsl(25, 85%, 45%);
+  --primary-foreground: hsl(39, 100%, 98%);
+  --secondary: hsl(39, 60%, 90%);
+  --secondary-foreground: hsl(25, 20%, 15%);
+  --accent: hsl(142, 70%, 40%);
+  --accent-foreground: hsl(39, 100%, 98%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(25, 85%, 45%);
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: hsl(25, 25%, 8%);
+  --foreground: hsl(39, 80%, 95%);
+  --muted: hsl(25, 15%, 20%);
+  --muted-foreground: hsl(39, 30%, 65%);
+  --popover: hsl(25, 20%, 12%);
+  --popover-foreground: hsl(39, 80%, 95%);
+  --card: hsl(25, 20%, 12%);
+  --card-foreground: hsl(39, 80%, 95%);
+  --border: hsl(25, 15%, 20%);
+  --input: hsl(25, 15%, 20%);
+  --primary: hsl(25, 85%, 55%);
+  --primary-foreground: hsl(25, 25%, 8%);
+  --secondary: hsl(25, 15%, 20%);
+  --secondary-foreground: hsl(39, 60%, 85%);
+  --accent: hsl(142, 70%, 50%);
+  --accent-foreground: hsl(25, 25%, 8%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(25, 85%, 55%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Ubuntu', sans-serif;
+  }
+}
+
+/* Custom utility classes */
+.font-ubuntu {
+  font-family: 'Ubuntu', sans-serif;
+}
+
+.font-lora {
+  font-family: 'Lora', serif;
+}
+
+/* Fix overlapping header and announcement elements */
+header[class*="sticky"] {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+}
+
+/* Ensure proper layering for all announcement banners */
+section[class*="bg-gradient"] {
+  position: relative;
+  z-index: 10;
+}
+
+/* Prevent any development banners and fixed overlays from interfering */
+div[id*="replit"],
+div[class*="replit"],
+script[src*="replit"],
+iframe[src*="replit"],
+[data-replit],
+.replit-banner,
+#replit-banner,
+div[class*="fixed top-4"],
+div[class*="z-50"] {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Remove any fixed positioned elements that could overlap header */
+.hero-improved section>div[class*="fixed"] {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  z-index: auto !important;
+}
+
+/* Mobile navigation fixes */
+@media (max-width: 768px) {
+  .mobile-menu {
+    z-index: 90;
+  }
+}
+
+/* Complete banner overlap fix */
+body {
+  position: relative;
+}
+
+/* Force navigation bar above all elements */
+.force-navigation-bar {
+  position: fixed !important;
+  top: 120px !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 999999 !important;
+  background: white !important;
+  border-bottom: 4px solid #3b82f6 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2) !important;
+  padding: 20px 0 !important;
+}
+
+/* Navigation button base styles */
+.nav-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 16px 24px !important;
+  border-radius: 12px !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+  border: 2px solid !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+}
+
+/* Navigation button color variants */
+.nav-button-blue {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
+}
+
+.nav-button-blue:hover {
+  background-color: #2563eb !important;
+  transform: scale(1.05) !important;
+}
+
+.nav-button-green {
+  background-color: #10b981 !important;
+  color: white !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+}
+
+.nav-button-green:hover {
+  background-color: #059669 !important;
+  transform: scale(1.05) !important;
+}
+
+.nav-button-purple {
+  background-color: #8b5cf6 !important;
+  color: white !important;
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+}
+
+.nav-button-purple:hover {
+  background-color: #7c3aed !important;
+  transform: scale(1.05) !important;
+}
+
+.nav-button-yellow {
+  background-color: #fbbf24 !important;
+  color: black !important;
+  border-color: #fbbf24 !important;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3) !important;
+}
+
+.nav-button-yellow:hover {
+  background-color: #f59e0b !important;
+  transform: scale(1.05) !important;
+}
+
+.nav-button-orange {
+  background-color: #f97316 !important;
+  color: white !important;
+  border-color: #f97316 !important;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3) !important;
+}
+
+.nav-button-orange:hover {
+  background-color: #ea580c !important;
+  transform: scale(1.05) !important;
+}
+
+/* Hide banner overlays */
+body>div:not(#root) {
+  display: none !important;
+}
+
+div[style*="position: fixed"][style*="background-color: rgb(34, 197, 94)"],
+div[style*="position: fixed"][style*="background-color: rgb(37, 99, 235)"],
+div[style*="position: fixed"][style*="background-color: rgb(251, 191, 36)"] {
+  display: none !important;
+}
+
+/* Force clean header area */
+body {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Ensure header sticks properly without interference */
+header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 999999 !important;
+  background: white !important;
+}
+
+/* Ensure header navigation is always visible and clickable */
+header nav a,
+header button,
+.optimized-header nav a,
+.optimized-header button {
+  position: relative !important;
+  z-index: 1000 !important;
+  pointer-events: auto !important;
+}
+
+/* African-inspired gradient backgrounds */
+.bg-gradient-hero {
+  background: linear-gradient(135deg, hsl(39, 100%, 97%) 0%, hsl(45, 90%, 94%) 100%);
+}
+
+.bg-gradient-savanna {
+  background: linear-gradient(135deg, hsl(39, 80%, 92%) 0%, hsl(25, 70%, 88%) 100%);
+}
+
+.bg-gradient-sunset {
+  background: linear-gradient(135deg, hsl(25, 85%, 45%) 0%, hsl(15, 80%, 50%) 100%);
+}
+
+/* Animation for loading states */
+@keyframes pulse-slow {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* UX Optimizations - Remove duplicate elements */
+.header-btn.generate,
+.footer-btn.generate {
+  display: none !important;
+}
+
+/* Prioritize primary action */
+#main-generate {
+  background: #4CAF50 !important;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 50;
+}
+
+/* Remove duplicate navigation on mobile */
+@media (max-width: 768px) {
+  .header-nav-links {
+    display: none !important;
+  }
+}
+
+/* Visual hierarchy for CTAs */
+.cta-primary {
+  background: #4CAF50 !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+.cta-secondary {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #e2e8f0;
+}

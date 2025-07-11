@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-06-19T11:47:00.534Z",
+  "summary": {
+    "successes": 8,
+    "errors": 3,
+    "warnings": 1
+  },
+  "errors": [
+    {
+      "feature": "Pitch Generation",
+      "message": "Network error: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+      "timestamp": "2025-06-19T11:47:00.348Z"
+    },
+    {
+      "feature": "Workspace Validation",
+      "message": "Empty name validation not working",
+      "timestamp": "2025-06-19T11:47:00.514Z"
+    },
+    {
+      "feature": "Pricing Endpoints",
+      "message": "/api/config error: Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON",
+      "timestamp": "2025-06-19T11:47:00.521Z"
+    }
+  ],
+  "successes": [
+    {
+      "feature": "3D Video Generation",
+      "message": "Video generation endpoint responding",
+      "timestamp": "2025-06-19T11:47:00.487Z"
+    },
+    {
+      "feature": "Grants Database",
+      "message": "6 grants loaded successfully",
+      "timestamp": "2025-06-19T11:47:00.490Z"
+    },
+    {
+      "feature": "Document Upload",
+      "message": "File upload and processing working",
+      "timestamp": "2025-06-19T11:47:00.505Z"
+    },
+    {
+      "feature": "CV Builder Upload",
+      "message": "CV file processing working",
+      "timestamp": "2025-06-19T11:47:00.508Z"
+    },
+    {
+      "feature": "Workspace Creation",
+      "message": "Workspace creation working",
+      "timestamp": "2025-06-19T11:47:00.511Z"
+    },
+    {
+      "feature": "Pricing Endpoints",
+      "message": "/api/user/subscription responding",
+      "timestamp": "2025-06-19T11:47:00.515Z"
+    },
+    {
+      "feature": "Sharing Functionality",
+      "message": "Email sharing endpoint working",
+      "timestamp": "2025-06-19T11:47:00.527Z"
+    },
+    {
+      "feature": "Shared Content",
+      "message": "Shared content viewing working",
+      "timestamp": "2025-06-19T11:47:00.531Z"
+    }
+  ],
+  "warnings": [
+    {
+      "feature": "Pricing Consistency",
+      "message": "Manual review needed for tier consistency across app",
+      "timestamp": "2025-06-19T11:47:00.522Z"
+    }
+  ]
+}
