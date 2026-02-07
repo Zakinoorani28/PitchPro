@@ -10,5 +10,5 @@ console.log("ProtoLab error monitoring active:", errorMonitor.getStats());
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
